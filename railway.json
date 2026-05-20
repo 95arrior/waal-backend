@@ -4,6 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
+    "startCommand": "java -Dspring.profiles.active=prod -jar /app/target/waal-backend-0.0.1-SNAPSHOT.jar",
     "healthcheckPath": "/actuator/health",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
