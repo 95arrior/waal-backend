@@ -24,16 +24,30 @@ public class KindergartenService {
     private final UserService userService;
 
     @Transactional
-    public KindergartenResponse create(Long userId, KindergartenCreateRequest request) {
+    public KindergartenResponse create(Long userId, KindergartenCreateRequest req) {
         User owner = userService.findUser(userId);
 
         Kindergarten kindergarten = kindergartenRepository.save(Kindergarten.builder()
-                .name(request.getName())
-                .address(request.getAddress())
-                .phone(request.getPhone())
-                .description(request.getDescription())
-                .imageUrl(request.getImageUrl())
-                .maxCapacity(request.getMaxCapacity())
+                .name(req.getName())
+                .address(req.getAddress())
+                .addressDetail(req.getAddressDetail())
+                .sggCode(req.getSggCode())
+                .phone(req.getPhone())
+                .description(req.getDescription())
+                .imageUrl(req.getImageUrl())
+                .maxCapacity(req.getMaxCapacity())
+                .scheduleList(req.getScheduleList())
+                .allowSmall(req.isAllowSmall())
+                .smallMaxKg(req.getSmallMaxKg())
+                .allowMedium(req.isAllowMedium())
+                .mediumMaxKg(req.getMediumMaxKg())
+                .allowLarge(req.isAllowLarge())
+                .largeMaxKg(req.getLargeMaxKg())
+                .hasShuttle(req.isHasShuttle())
+                .allowShy(req.isAllowShy())
+                .hasClass(req.isHasClass())
+                .latitude(req.getLatitude())
+                .longitude(req.getLongitude())
                 .build());
 
         memberRepository.save(KindergartenMember.builder()
@@ -49,13 +63,46 @@ public class KindergartenService {
         return KindergartenResponse.from(findKindergarten(kindergartenId));
     }
 
+    public List<KindergartenResponse> search(String keyword, Boolean allowSmall, Boolean allowMedium,
+                                             Boolean allowLarge, Boolean hasShuttle, Boolean allowShy,
+                                             Boolean hasClass) {
+        return kindergartenRepository.findAll().stream()
+                .filter(k -> keyword == null || k.getName().contains(keyword) || k.getAddress().contains(keyword))
+                .filter(k -> allowSmall == null  || k.isAllowSmall()  == allowSmall)
+                .filter(k -> allowMedium == null || k.isAllowMedium() == allowMedium)
+                .filter(k -> allowLarge == null  || k.isAllowLarge()  == allowLarge)
+                .filter(k -> hasShuttle == null  || k.isHasShuttle()  == hasShuttle)
+                .filter(k -> allowShy == null    || k.isAllowShy()    == allowShy)
+                .filter(k -> hasClass == null    || k.isHasClass()    == hasClass)
+                .map(KindergartenResponse::from)
+                .toList();
+    }
+
     @Transactional
-    public KindergartenResponse update(Long userId, Long kindergartenId, KindergartenUpdateRequest request) {
+    public KindergartenResponse update(Long userId, Long kindergartenId, KindergartenUpdateRequest req) {
         validateOwner(userId, kindergartenId);
-        Kindergarten kindergarten = findKindergarten(kindergartenId);
-        kindergarten.update(request.getName(), request.getAddress(), request.getPhone(),
-                request.getDescription(), request.getImageUrl(), request.getMaxCapacity());
-        return KindergartenResponse.from(kindergarten);
+        Kindergarten k = findKindergarten(kindergartenId);
+        k.setName(req.getName());
+        k.setAddress(req.getAddress());
+        k.setAddressDetail(req.getAddressDetail());
+        k.setSggCode(req.getSggCode());
+        k.setPhone(req.getPhone());
+        k.setDescription(req.getDescription());
+        k.setImageUrl(req.getImageUrl());
+        k.setMaxCapacity(req.getMaxCapacity());
+        k.setScheduleList(req.getScheduleList());
+        k.setAllowSmall(req.isAllowSmall());
+        k.setSmallMaxKg(req.getSmallMaxKg());
+        k.setAllowMedium(req.isAllowMedium());
+        k.setMediumMaxKg(req.getMediumMaxKg());
+        k.setAllowLarge(req.isAllowLarge());
+        k.setLargeMaxKg(req.getLargeMaxKg());
+        k.setHasShuttle(req.isHasShuttle());
+        k.setAllowShy(req.isAllowShy());
+        k.setHasClass(req.isHasClass());
+        k.setLatitude(req.getLatitude());
+        k.setLongitude(req.getLongitude());
+        return KindergartenResponse.from(k);
     }
 
     public List<KindergartenMemberResponse> getMembers(Long userId, Long kindergartenId) {

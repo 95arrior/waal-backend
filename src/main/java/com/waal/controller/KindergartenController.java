@@ -29,6 +29,20 @@ public class KindergartenController {
         return ApiResponse.ok(kindergartenService.create(userId, request));
     }
 
+    @Operation(summary = "유치원 목록 검색 (필터)")
+    @GetMapping
+    public ApiResponse<List<KindergartenResponse>> search(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean allowSmall,
+            @RequestParam(required = false) Boolean allowMedium,
+            @RequestParam(required = false) Boolean allowLarge,
+            @RequestParam(required = false) Boolean hasShuttle,
+            @RequestParam(required = false) Boolean allowShy,
+            @RequestParam(required = false) Boolean hasClass) {
+        return ApiResponse.ok(kindergartenService.search(
+                keyword, allowSmall, allowMedium, allowLarge, hasShuttle, allowShy, hasClass));
+    }
+
     @Operation(summary = "유치원 상세 조회")
     @GetMapping("/{kindergartenId}")
     public ApiResponse<KindergartenResponse> get(@PathVariable Long kindergartenId) {
